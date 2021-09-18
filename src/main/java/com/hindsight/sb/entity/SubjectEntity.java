@@ -10,13 +10,14 @@ import javax.persistence.*;
 @Table(name = "subject")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Subject extends BaseEntity {
+public class SubjectEntity extends BaseEntity {
 
     @Id
     @GeneratedValue
-    @Column(name = "sub_id")
+    @Column(name = "subject_id")
     private Long id;
 
     @Column(name = "name", nullable = false, unique = true)
     private String name;
+
 }

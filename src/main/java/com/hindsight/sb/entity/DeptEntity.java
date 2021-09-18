@@ -5,13 +5,14 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
-import java.util.Set;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Table(name = "department")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Department extends BaseEntity {
+public class DeptEntity extends BaseEntity {
 
     @Id
     @GeneratedValue
@@ -21,9 +22,6 @@ public class Department extends BaseEntity {
     @Column(name = "name", nullable = false)
     private String name;
 
-    @OneToMany(mappedBy = "user")
-    private Set<User> users;
-
-    @OneToMany(mappedBy = "post")
-    private Set<Post> posts;
+    @OneToMany(mappedBy = "deptEntity")
+    private List<UserEntity> users = new ArrayList<>();
 }

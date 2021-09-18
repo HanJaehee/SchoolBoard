@@ -10,7 +10,7 @@ import javax.persistence.*;
 @Table(name = "post")
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class Post  extends BaseEntity {
+public class PostEntity extends BaseEntity {
 
     @Id
     @GeneratedValue
@@ -18,16 +18,12 @@ public class Post  extends BaseEntity {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dept_id")
-    private Department department;
-
-    @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "sub_id")
-    private Subject subject;
+    private SubjectEntity subject;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
-    private User user;
+    private UserEntity user;
 
     @Column(name = "title", nullable = false)
     private String title;

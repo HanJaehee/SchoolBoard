@@ -6,29 +6,18 @@ import lombok.NoArgsConstructor;
 
 import javax.persistence.*;
 import java.time.LocalDate;
-import java.util.Set;
 
+
+@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Entity
 @Table(name = "user")
-@NoArgsConstructor(access = AccessLevel.PROTECTED)
 @Getter
-public class User extends BaseEntity {
+public class UserEntity extends BaseEntity {
 
     @Id
     @GeneratedValue
-    @Column(name = "user_id")
+    @Column(name = "student_id")
     private Long id;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "subject_id")
-    private Subject subject;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "dept_id")
-    private Department department;
-
-    @OneToMany(mappedBy = "user", fetch = FetchType.LAZY)
-    private Set<Post> posts;
 
     @Column(name = "name", nullable = false)
     private String name;
@@ -43,7 +32,11 @@ public class User extends BaseEntity {
     private LocalDate birth;
 
     @Enumerated(value = EnumType.STRING)
-    @Column(name = "user_type", nullable = false)
-    private UserType userType;
+    @Column(name = "user_role", nullable = false)
+    private UserRole userRole;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "dept_id")
+    private DeptEntity deptEntity;
 
 }
