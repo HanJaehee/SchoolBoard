@@ -1,8 +1,11 @@
 package com.hindsight.sb.controller;
 
-import com.google.gson.Gson;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hindsight.sb.dto.dept.DeptRequest;
 import com.hindsight.sb.dto.dept.DeptResponse;
+import com.hindsight.sb.exception.GlobalExceptionHandler;
+import com.hindsight.sb.exception.dept.DeptErrorResult;
+import com.hindsight.sb.exception.dept.DeptException;
 import com.hindsight.sb.service.DeptService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -14,10 +17,13 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
+import org.springframework.web.filter.CharacterEncodingFilter;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -30,7 +36,7 @@ public class DeptControllerTest {
     @Mock
     private DeptService deptService;
     private MockMvc mockMvc;
-    private Gson gson;
+    private ObjectMapper objectMapper;
 
     private DeptResponse deptResponse() {
         return DeptResponse.builder()
@@ -41,8 +47,31 @@ public class DeptControllerTest {
 
     @BeforeEach
     void init() {
-        gson = new Gson();
-        mockMvc = MockMvcBuilders.standaloneSetup(deptController).build();
+        objectMapper = new ObjectMapper();
+        mockMvc = MockMvcBuilders
+                .standaloneSetup(deptController)
+                .setControllerAdvice(new GlobalExceptionHandler())
+                .addFilters(new CharacterEncodingFilter("UTF-8", true)).build();
+    }
+
+    @Test
+    @DisplayName("등록 실패 - 전공 이름 중복")
+    void addDept_fail_duplicateDeptName() throws Exception {
+        // given
+        final String url = "/dept";
+        doThrow(new DeptException(DeptErrorResult.DUPLICATED_NAME)).when(deptService).addDept(any(DeptRequest.class));
+        DeptRequest request = DeptRequest.builder().name("정보호호학과").build();
+        // when
+        ResultActions perform = mockMvc.perform(post(url)
+                        .content(objectMapper.writeValueAsString(request))
+                        .contentType(MediaType.APPLICATION_JSON))
+                .andDo(print());
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value(DeptErrorResult.DUPLICATED_NAME.getMessage()))
+        ;
+
     }
 
     @Test
@@ -54,7 +83,7 @@ public class DeptControllerTest {
         // when
         ResultActions resultActions = mockMvc.perform(
                 post(url)
-                        .content(gson.toJson(request))
+                        .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
         );
         // then
@@ -71,9 +100,9 @@ public class DeptControllerTest {
         // when
         ResultActions resultActions = mockMvc.perform(
                 post(url)
-                        .content(gson.toJson(request))
+                        .content(objectMapper.writeValueAsString(request))
                         .contentType(MediaType.APPLICATION_JSON)
-        );
+        ).andDo(print());
         // then
         resultActions
                 .andExpect(status().isCreated())

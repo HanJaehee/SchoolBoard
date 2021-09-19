@@ -11,6 +11,7 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
+import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
@@ -28,10 +29,11 @@ public class DeptServiceTest {
     private DeptRepository deptRepository;
 
     private DeptEntity deptEntity() {
-        return DeptEntity.builder()
-                .id(-1L)
+        DeptEntity deptEntity = DeptEntity.builder()
                 .name(name)
                 .build();
+        ReflectionTestUtils.setField(deptEntity, "id", 1L);
+        return deptEntity;
     }
 
     @Test

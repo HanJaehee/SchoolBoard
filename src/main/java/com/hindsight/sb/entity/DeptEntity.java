@@ -16,7 +16,7 @@ import java.util.List;
 public class DeptEntity extends BaseEntity {
 
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "dept_id")
     private Long id;
 
@@ -27,8 +27,7 @@ public class DeptEntity extends BaseEntity {
     private List<UserEntity> users = new ArrayList<>();
 
     @Builder
-    private DeptEntity(Long id, String name) {
-        this.id = id;
+    private DeptEntity(String name) {
         this.name = name;
     }
 }

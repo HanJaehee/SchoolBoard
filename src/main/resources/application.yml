@@ -1,0 +1,15 @@
+spring:
+  datasource:
+    url: jdbc:h2:tcp://localhost/~/schoolboard
+    username: sa
+    password:
+    driver-class-name: org.h2.Driver
+  jpa:
+    hibernate:
+      ddl-auto: create
+    properties:
+      format_sql: true
+      type:
+        descriptor:
+          sql: trace
+    show-sql: true
