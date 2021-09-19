@@ -1,6 +1,7 @@
 package com.hindsight.sb.entity;
 
 import lombok.AccessLevel;
+import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 
@@ -19,9 +20,15 @@ public class DeptEntity extends BaseEntity {
     @Column(name = "dept_id")
     private Long id;
 
-    @Column(name = "name", nullable = false)
+    @Column(name = "name", nullable = false, unique = true)
     private String name;
 
     @OneToMany(mappedBy = "deptEntity")
     private List<UserEntity> users = new ArrayList<>();
+
+    @Builder
+    private DeptEntity(Long id, String name) {
+        this.id = id;
+        this.name = name;
+    }
 }
