@@ -4,8 +4,8 @@ import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 
-@Getter
 @RequiredArgsConstructor
+@Getter
 public enum DeptErrorResult {
 
     DUPLICATED_NAME(HttpStatus.BAD_REQUEST, "중복된 이름이 있습니다."),

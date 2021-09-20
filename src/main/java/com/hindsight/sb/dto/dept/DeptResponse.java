@@ -11,7 +11,6 @@ import lombok.NoArgsConstructor;
 @Builder
 @Getter
 public class DeptResponse {
-
     private Long id;
     private String name;
 
