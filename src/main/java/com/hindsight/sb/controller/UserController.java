@@ -2,8 +2,8 @@ package com.hindsight.sb.controller;
 
 import com.hindsight.sb.dto.user.UserRequest;
 import com.hindsight.sb.dto.user.UserResponse;
-import com.hindsight.sb.exception.error.UserErrorResult;
-import com.hindsight.sb.exception.error.UserException;
+import com.hindsight.sb.exception.user.UserErrorResult;
+import com.hindsight.sb.exception.user.UserException;
 import com.hindsight.sb.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityModel;
