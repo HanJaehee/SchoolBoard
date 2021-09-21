@@ -12,7 +12,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @Getter
-public class UserResponse {
+public class UserDetailResponse {
 
     private Long id;
     private String name;
@@ -22,8 +22,8 @@ public class UserResponse {
     private UserRole userRole;
     private DeptResponse dept;
 
-    public static UserResponse toDto(UserEntity entity) {
-        return UserResponse.builder()
+    public static UserDetailResponse toDto(UserEntity entity) {
+        return UserDetailResponse.builder()
                 .id(entity.getId())
                 .address(entity.getAddress())
                 .name(entity.getName())

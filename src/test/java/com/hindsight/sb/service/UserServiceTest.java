@@ -1,7 +1,7 @@
 package com.hindsight.sb.service;
 
+import com.hindsight.sb.dto.user.UserDetailResponse;
 import com.hindsight.sb.dto.user.UserRequest;
-import com.hindsight.sb.dto.user.UserResponse;
 import com.hindsight.sb.entity.DeptEntity;
 import com.hindsight.sb.entity.UserEntity;
 import com.hindsight.sb.entity.UserRole;
@@ -123,7 +123,7 @@ public class UserServiceTest {
                 .type(0)
                 .deptId(deptId)
                 .build();
-        UserResponse res = userService.addUser(req);
+        UserDetailResponse res = userService.addUser(req);
 
         // then
         assertNotNull(res.getId());

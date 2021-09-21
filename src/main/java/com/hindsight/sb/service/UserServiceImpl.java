@@ -1,7 +1,7 @@
 package com.hindsight.sb.service;
 
+import com.hindsight.sb.dto.user.UserDetailResponse;
 import com.hindsight.sb.dto.user.UserRequest;
-import com.hindsight.sb.dto.user.UserResponse;
 import com.hindsight.sb.entity.DeptEntity;
 import com.hindsight.sb.entity.UserEntity;
 import com.hindsight.sb.exception.dept.DeptErrorResult;
@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
     private final DeptRepository deptRepository;
 
     @Override
-    public UserResponse addUser(UserRequest req) {
+    public UserDetailResponse addUser(UserRequest req) {
         if (userRepository.findByPhoneNo(req.getPhoneNo()).isPresent())
             throw new UserException(UserErrorResult.DUPLICATED_PHONE_NUMBER);
 
@@ -32,6 +32,6 @@ public class UserServiceImpl implements UserService {
             throw new DeptException(DeptErrorResult.NO_SUCH_DEPT_ID);
 
         UserEntity newUser = userRepository.save(UserEntity.of(req, optionalDept.get()));
-        return UserResponse.toDto(newUser);
+        return UserDetailResponse.toDto(newUser);
     }
 }

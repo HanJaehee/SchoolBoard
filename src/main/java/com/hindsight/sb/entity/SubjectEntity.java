@@ -23,19 +23,19 @@ public class SubjectEntity extends BaseEntity {
     private String name;
 
     @ManyToOne
-    @JoinColumn(name = "super_id")
-    private UserEntity supervisor;
+    @JoinColumn(name = "user_id")
+    private UserEntity prof;
 
     @Builder
-    private SubjectEntity(String name, UserEntity supervisor) {
+    private SubjectEntity(String name, UserEntity prof) {
         this.name = name;
-        this.supervisor = supervisor;
+        this.prof = prof;
     }
 
-    public static SubjectEntity of(SubjectRequest req, UserEntity supervisor) {
+    public static SubjectEntity of(SubjectRequest req, UserEntity prof) {
         return SubjectEntity.builder()
                 .name(req.getName())
-                .supervisor(supervisor)
+                .prof(prof)
                 .build();
     }
 }

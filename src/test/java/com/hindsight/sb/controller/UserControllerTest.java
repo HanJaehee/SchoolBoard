@@ -2,8 +2,8 @@ package com.hindsight.sb.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hindsight.sb.dto.dept.DeptResponse;
+import com.hindsight.sb.dto.user.UserDetailResponse;
 import com.hindsight.sb.dto.user.UserRequest;
-import com.hindsight.sb.dto.user.UserResponse;
 import com.hindsight.sb.entity.UserRole;
 import com.hindsight.sb.exception.GlobalExceptionHandler;
 import com.hindsight.sb.exception.user.UserErrorResult;
@@ -62,8 +62,8 @@ public class UserControllerTest {
         return DeptResponse.builder().name(deptName).id(deptId).build();
     }
 
-    private UserResponse userResponse(DeptResponse deptResponse) {
-        return UserResponse.builder()
+    private UserDetailResponse userResponse(DeptResponse deptResponse) {
+        return UserDetailResponse.builder()
                 .id(userId)
                 .userRole(UserRole.STUDENT)
                 .address(address)

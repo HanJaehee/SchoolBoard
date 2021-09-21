@@ -1,7 +1,7 @@
 package com.hindsight.sb.controller;
 
+import com.hindsight.sb.dto.user.UserDetailResponse;
 import com.hindsight.sb.dto.user.UserRequest;
-import com.hindsight.sb.dto.user.UserResponse;
 import com.hindsight.sb.exception.user.UserErrorResult;
 import com.hindsight.sb.exception.user.UserException;
 import com.hindsight.sb.service.UserService;
@@ -30,13 +30,13 @@ public class UserController {
     }
 
     @PostMapping
-    public ResponseEntity<EntityModel<UserResponse>> addUser(@RequestBody @Valid UserRequest req, Errors errors) {
+    public ResponseEntity<EntityModel<UserDetailResponse>> addUser(@RequestBody @Valid UserRequest req, Errors errors) {
         if (errors.hasErrors())
             return ResponseEntity.badRequest().build();
 
-        UserResponse res = userService.addUser(req);
+        UserDetailResponse res = userService.addUser(req);
 
-        EntityModel<UserResponse> model = EntityModel.of(res);
+        EntityModel<UserDetailResponse> model = EntityModel.of(res);
         Link selfLink = linkTo(methodOn(this.getClass()).getUser(res.getId())).withSelfRel();
         Link deptLink = linkTo(methodOn(DeptController.class).getDept(res.getDept().getId())).withRel("dept");
         model.add(selfLink);
@@ -46,7 +46,7 @@ public class UserController {
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<UserResponse>> getUser(@PathVariable Long id) {
+    public ResponseEntity<EntityModel<UserDetailResponse>> getUser(@PathVariable Long id) {
         return null;
     }
 }

@@ -1,7 +1,12 @@
 package com.hindsight.sb.repository;
 
-import com.hindsight.sb.entity.CourseSubject;
+import com.hindsight.sb.entity.CourseSubjectEntity;
+import com.hindsight.sb.entity.UserEntity;
 import org.springframework.data.jpa.repository.JpaRepository;
 
-public interface CourseRepository extends JpaRepository<CourseSubject, Long> {
+import java.util.List;
+
+public interface CourseRepository extends JpaRepository<CourseSubjectEntity, Long> {
+
+    List<CourseSubjectEntity> findAllByStudent(UserEntity student);
 }

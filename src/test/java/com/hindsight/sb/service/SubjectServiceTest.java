@@ -59,14 +59,14 @@ public class SubjectServiceTest {
 
     SubjectRequest subjectRequest() {
         return SubjectRequest.builder()
-                .superId(1L)
+                .profId(1L)
                 .name(subjectName)
                 .build();
     }
 
-    SubjectEntity subjectEntity(UserEntity supervisor) {
+    SubjectEntity subjectEntity(UserEntity prof) {
         SubjectEntity entity = SubjectEntity.builder()
-                .supervisor(supervisor)
+                .prof(prof)
                 .name(subjectName).build();
         ReflectionTestUtils.setField(entity, "id", 1L);
         return entity;

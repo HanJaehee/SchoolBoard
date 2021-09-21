@@ -27,11 +27,11 @@ public class SubjectServiceImpl implements SubjectService {
         if (subjectRepository.findByName(req.getName()).isPresent())
             throw new SubjectException(SubjectErrorResult.DUPLICATE_NAME);
 
-        Optional<UserEntity> optionalSuper = userRepository.findById(req.getSuperId());
-        if (!optionalSuper.isPresent())
+        Optional<UserEntity> optionalProf = userRepository.findById(req.getProfId());
+        if (!optionalProf.isPresent())
             throw new UserException(UserErrorResult.NOT_EXISTS_USER);
 
-        SubjectEntity savedEntity = subjectRepository.save(SubjectEntity.of(req, optionalSuper.get()));
+        SubjectEntity savedEntity = subjectRepository.save(SubjectEntity.of(req, optionalProf.get()));
         return SubjectResponse.toDto(savedEntity);
     }
 }

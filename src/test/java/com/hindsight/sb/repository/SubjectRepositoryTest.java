@@ -48,13 +48,13 @@ class SubjectRepositoryTest {
         userRepository.save(prof);
         SubjectEntity subject = SubjectEntity.builder()
                 .name("정보보호의 기초")
-                .supervisor(prof)
+                .prof(prof)
                 .build();
 
         SubjectEntity savedSubject = subjectRepository.save(subject);
 
         assertEquals(subject, savedSubject);
-        assertEquals(subject.getSupervisor(), prof);
+        assertEquals(subject.getProf(), prof);
     }
 
 }

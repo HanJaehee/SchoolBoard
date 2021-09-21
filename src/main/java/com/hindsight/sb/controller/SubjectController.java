@@ -30,7 +30,7 @@ public class SubjectController {
         SubjectResponse res = subjectService.addSubject(request);
         EntityModel<SubjectResponse> model = EntityModel.of(res);
         Link selfLink = linkTo(methodOn(SubjectController.class).getSubject(res.getId())).withSelfRel();
-        Link superLink = linkTo(methodOn(UserController.class).getUser(res.getSupervisor().getId())).withRel("supervisor");
+        Link superLink = linkTo(methodOn(UserController.class).getUser(res.getProf().getId())).withRel("supervisor");
         model.add(selfLink);
         model.add(superLink);
 

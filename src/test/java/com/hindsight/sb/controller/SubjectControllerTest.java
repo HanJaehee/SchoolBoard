@@ -3,7 +3,7 @@ package com.hindsight.sb.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hindsight.sb.dto.subject.SubjectRequest;
 import com.hindsight.sb.dto.subject.SubjectResponse;
-import com.hindsight.sb.dto.user.UserResponse;
+import com.hindsight.sb.dto.user.UserBriefResponse;
 import com.hindsight.sb.entity.DeptEntity;
 import com.hindsight.sb.entity.UserEntity;
 import com.hindsight.sb.entity.UserRole;
@@ -46,7 +46,7 @@ public class SubjectControllerTest {
 
     SubjectRequest subjectRequest() {
         return SubjectRequest.builder()
-                .superId(1L)
+                .profId(1L)
                 .name(subjectName).build();
     }
 
@@ -73,7 +73,7 @@ public class SubjectControllerTest {
     SubjectResponse subjectResponse() {
         return SubjectResponse.builder()
                 .id(subjectId)
-                .supervisor(UserResponse.toDto(userEntity(deptEntity())))
+                .prof(UserBriefResponse.toDto(userEntity(deptEntity())))
                 .name(subjectName).build();
     }
 
