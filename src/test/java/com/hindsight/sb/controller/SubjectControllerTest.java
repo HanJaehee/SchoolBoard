@@ -3,6 +3,10 @@ package com.hindsight.sb.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hindsight.sb.dto.subject.SubjectRequest;
 import com.hindsight.sb.dto.subject.SubjectResponse;
+import com.hindsight.sb.dto.user.UserResponse;
+import com.hindsight.sb.entity.DeptEntity;
+import com.hindsight.sb.entity.UserEntity;
+import com.hindsight.sb.entity.UserRole;
 import com.hindsight.sb.exception.GlobalExceptionHandler;
 import com.hindsight.sb.service.SubjectService;
 import org.junit.jupiter.api.BeforeEach;
@@ -12,10 +16,13 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.http.MediaType;
+import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.filter.CharacterEncodingFilter;
+
+import java.time.LocalDate;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
@@ -36,13 +43,40 @@ public class SubjectControllerTest {
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
+
     SubjectRequest subjectRequest() {
-        return SubjectRequest.builder().name(subjectName).build();
+        return SubjectRequest.builder()
+                .superId(1L)
+                .name(subjectName).build();
+    }
+
+    DeptEntity deptEntity() {
+        DeptEntity dept = DeptEntity.builder()
+                .name("정보보호학과").build();
+        ReflectionTestUtils.setField(dept, "id", 1L);
+        return dept;
+    }
+
+    UserEntity userEntity(DeptEntity dept) {
+        UserEntity user = UserEntity.builder()
+                .address("경기도 의정부시")
+                .deptEntity(dept)
+                .userRole(UserRole.PROFESSOR)
+                .birth(LocalDate.now())
+                .phoneNo("000-0000-0000")
+                .name("김교수")
+                .build();
+        ReflectionTestUtils.setField(user, "id", 1L);
+        return user;
     }
 
     SubjectResponse subjectResponse() {
-        return SubjectResponse.builder().id(subjectId).name(subjectName).build();
+        return SubjectResponse.builder()
+                .id(subjectId)
+                .supervisor(UserResponse.toDto(userEntity(deptEntity())))
+                .name(subjectName).build();
     }
+
 
     @BeforeEach
     void init() {
@@ -91,6 +125,7 @@ public class SubjectControllerTest {
         perform
                 .andExpect(jsonPath("id").value(subjectId))
                 .andExpect(jsonPath("name").value(subjectName))
+                .andExpect(jsonPath("supervisor").exists())
                 .andExpect(jsonPath("links[0].rel").exists())
                 .andExpect(jsonPath("links[0].href").exists())
         ;

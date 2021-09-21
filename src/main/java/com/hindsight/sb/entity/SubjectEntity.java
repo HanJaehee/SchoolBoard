@@ -22,14 +22,20 @@ public class SubjectEntity extends BaseEntity {
     @Column(name = "name", nullable = false, unique = true)
     private String name;
 
+    @ManyToOne
+    @JoinColumn(name = "super_id")
+    private UserEntity supervisor;
+
     @Builder
-    private SubjectEntity(String name) {
+    private SubjectEntity(String name, UserEntity supervisor) {
         this.name = name;
+        this.supervisor = supervisor;
     }
 
-    public static SubjectEntity of(SubjectRequest req) {
+    public static SubjectEntity of(SubjectRequest req, UserEntity supervisor) {
         return SubjectEntity.builder()
                 .name(req.getName())
+                .supervisor(supervisor)
                 .build();
     }
 }

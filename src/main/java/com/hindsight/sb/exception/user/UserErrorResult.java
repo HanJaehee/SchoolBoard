@@ -8,8 +8,8 @@ import org.springframework.http.HttpStatus;
 @Getter
 public enum UserErrorResult {
 
-    DUPLICATED_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "이미 등록된 핸드폰 번호 입니다.");
-
+    DUPLICATED_PHONE_NUMBER(HttpStatus.BAD_REQUEST, "이미 등록된 핸드폰 번호 입니다."),
+    NOT_EXISTS_USER(HttpStatus.BAD_REQUEST, "등록된 유저가 없습니다.");
     private final HttpStatus httpStatus;
     private final String message;
 }
