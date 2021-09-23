@@ -7,6 +7,7 @@ import com.hindsight.sb.exception.GlobalExceptionHandler;
 import com.hindsight.sb.exception.dept.DeptErrorResult;
 import com.hindsight.sb.exception.dept.DeptException;
 import com.hindsight.sb.service.DeptService;
+import com.hindsight.sb.stub.DeptStubs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -38,13 +39,6 @@ public class DeptControllerTest {
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
-    private DeptResponse deptResponse() {
-        return DeptResponse.builder()
-                .id(-1L)
-                .name(name)
-                .build();
-    }
-
     @BeforeEach
     void init() {
         objectMapper = new ObjectMapper();
@@ -60,7 +54,7 @@ public class DeptControllerTest {
         // given
         final String url = "/dept";
         doThrow(new DeptException(DeptErrorResult.DUPLICATED_NAME)).when(deptService).addDept(any(DeptRequest.class));
-        DeptRequest request = DeptRequest.builder().name("정보호호학과").build();
+        DeptRequest request = DeptStubs.generateRequest();
         // when
         ResultActions perform = mockMvc.perform(post(url)
                         .content(objectMapper.writeValueAsString(request))
@@ -95,8 +89,9 @@ public class DeptControllerTest {
     void addDept_success() throws Exception {
         // given
         final String url = "/dept";
-        DeptRequest request = DeptRequest.builder().name(name).build();
-        doReturn(deptResponse()).when(deptService).addDept(any(DeptRequest.class));
+        DeptRequest request = DeptStubs.generateRequest();
+        DeptResponse response = DeptStubs.generateResponse(1L);
+        doReturn(response).when(deptService).addDept(any(DeptRequest.class));
         // when
         ResultActions resultActions = mockMvc.perform(
                 post(url)
@@ -111,14 +106,5 @@ public class DeptControllerTest {
         ;
     }
 
-    @Test
-    @DisplayName("")
-    void testName() {
-        // given
-
-        // when
-
-        // then
-    }
 
 }

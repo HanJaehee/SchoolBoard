@@ -6,9 +6,6 @@ import com.hindsight.sb.dto.course.CourseResponse;
 import com.hindsight.sb.dto.subject.SubjectRequest;
 import com.hindsight.sb.dto.subject.SubjectResponse;
 import com.hindsight.sb.dto.user.UserBriefResponse;
-import com.hindsight.sb.entity.DeptEntity;
-import com.hindsight.sb.entity.UserEntity;
-import com.hindsight.sb.entity.UserRole;
 import com.hindsight.sb.exception.GlobalExceptionHandler;
 import com.hindsight.sb.exception.subject.SubjectErrorResult;
 import com.hindsight.sb.exception.subject.SubjectException;
@@ -16,6 +13,9 @@ import com.hindsight.sb.exception.user.UserErrorResult;
 import com.hindsight.sb.exception.user.UserException;
 import com.hindsight.sb.service.CourseService;
 import com.hindsight.sb.service.SubjectService;
+import com.hindsight.sb.stub.CourseStubs;
+import com.hindsight.sb.stub.SubjectStubs;
+import com.hindsight.sb.stub.UserStubs;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,13 +23,11 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 import org.springframework.http.MediaType;
-import org.springframework.test.util.ReflectionTestUtils;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.LongStream;
@@ -45,8 +43,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @MockitoSettings
 public class SubjectControllerTest {
 
-    private final Long subjectId = 1L;
-    private final String subjectName = "정보보호의 기초";
     @InjectMocks
     private SubjectController subjectController;
     @Mock
@@ -55,41 +51,6 @@ public class SubjectControllerTest {
     private CourseService courseService;
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
-
-
-    SubjectRequest subjectRequest() {
-        return SubjectRequest.builder()
-                .profId(1L)
-                .name(subjectName).build();
-    }
-
-    DeptEntity deptEntity() {
-        DeptEntity dept = DeptEntity.builder()
-                .name("정보보호학과").build();
-        ReflectionTestUtils.setField(dept, "id", 1L);
-        return dept;
-    }
-
-    UserEntity userEntity(DeptEntity dept) {
-        UserEntity user = UserEntity.builder()
-                .address("경기도 의정부시")
-                .deptEntity(dept)
-                .userRole(UserRole.PROFESSOR)
-                .birth(LocalDate.now())
-                .phoneNo("000-0000-0000")
-                .name("김교수")
-                .build();
-        ReflectionTestUtils.setField(user, "id", 1L);
-        return user;
-    }
-
-    SubjectResponse subjectResponse() {
-        return SubjectResponse.builder()
-                .id(subjectId)
-                .prof(UserBriefResponse.toDto(userEntity(deptEntity())))
-                .name(subjectName).build();
-    }
-
 
     @BeforeEach
     void init() {
@@ -107,7 +68,7 @@ public class SubjectControllerTest {
         // given
         final String uri = "/subject";
         SubjectRequest req = SubjectRequest.builder().build();
-//        doThrow().when(subjectService).addSubject(any(SubjectRequest.class));
+
         // when
         ResultActions perform = mockMvc.perform(
                 post(uri)
@@ -125,8 +86,9 @@ public class SubjectControllerTest {
     void addSubject_success() throws Exception {
         // given
         final String uri = "/subject";
-        SubjectRequest req = subjectRequest();
-        SubjectResponse res = subjectResponse();
+        SubjectRequest req = SubjectStubs.generateRequest(1L);
+        UserBriefResponse prof = UserStubs.generateBriefResponse("한유저", 1L);
+        SubjectResponse res = SubjectStubs.generateResponse(prof, 1L);
         doReturn(res).when(subjectService).addSubject(any(SubjectRequest.class));
         // when
         ResultActions perform = mockMvc.perform(
@@ -136,40 +98,26 @@ public class SubjectControllerTest {
         ).andDo(print());
         // then
         perform
-                .andExpect(jsonPath("id").value(subjectId))
-                .andExpect(jsonPath("name").value(subjectName))
+                .andExpect(jsonPath("id").value(res.getId()))
+                .andExpect(jsonPath("name").value(res.getName()))
                 .andExpect(jsonPath("prof").exists())
                 .andExpect(jsonPath("links[0].rel").exists())
                 .andExpect(jsonPath("links[0].href").exists())
         ;
     }
 
-    CourseRequest courseRequest() {
-        return CourseRequest.builder()
-                .studentId(1L)
-                .subjectId(1L)
-                .build();
-    }
 
     @Test
     @DisplayName("수강 신청 성공")
     void enrollCourse_success() throws Exception {
         // given
         final String uri = "/subject/course";
-        CourseRequest req = CourseRequest.builder()
-                .subjectId(1L)
-                .studentId(1L)
-                .build();
+        CourseRequest req = CourseStubs.generateRequest(1L, 1L);
+        UserBriefResponse prof = UserStubs.generateBriefResponse("한유저", 1L);
+
         List<SubjectResponse> subjectList = new ArrayList<>();
-        UserBriefResponse prof = UserBriefResponse.builder().build();
-        LongStream.range(1L, 10L).forEach(x -> subjectList.add(SubjectResponse.builder()
-                .id(x)
-                .name("정보보호의 기초")
-                .prof(prof)
-                .build()));
-        CourseResponse res = CourseResponse.builder()
-                .subjectList(subjectList)
-                .build();
+        LongStream.range(1L, 10L).forEach(x -> subjectList.add(SubjectStubs.generateResponse(prof, x)));
+        CourseResponse res = CourseStubs.generateResponse(subjectList);
         doReturn(res).when(courseService).enrollCourse(any(CourseRequest.class));
         // when
         ResultActions perform = mockMvc.perform(
@@ -210,7 +158,7 @@ public class SubjectControllerTest {
     void enrollCourse_fail_NotExistStudent() throws Exception {
         // given
         final String uri = "/subject/course";
-        CourseRequest req = courseRequest();
+        CourseRequest req = CourseStubs.generateRequest(1L, 1L);
         doThrow(new UserException(UserErrorResult.NOT_EXISTS_USER)).when(courseService).enrollCourse(any(CourseRequest.class));
         // when
         ResultActions perform = mockMvc.perform(
@@ -228,7 +176,7 @@ public class SubjectControllerTest {
     @DisplayName("수강 신청 실패 - Not Exist Subject")
     void enrollCourse_fail_NotExistSubject() throws Exception {
         final String uri = "/subject/course";
-        CourseRequest req = courseRequest();
+        CourseRequest req = CourseStubs.generateRequest(1L, 1L);
         doThrow(new SubjectException(SubjectErrorResult.NOT_EXISTS_SUBJECT)).when(courseService).enrollCourse(any(CourseRequest.class));
         // when
         ResultActions perform = mockMvc.perform(

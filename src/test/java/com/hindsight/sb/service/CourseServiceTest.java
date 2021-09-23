@@ -47,11 +47,11 @@ public class CourseServiceTest {
     @DisplayName("수강 신청 성공")
     void enrollCourse_success() {
         // given
-        DeptEntity dept = DeptStubs.generateEntity();
-        UserEntity prof = UserStubs.generateEntity(UserRole.PROFESSOR, "000-0000-0000", dept);
-        UserEntity student = UserStubs.generateEntity(UserRole.STUDENT, "111-1111-1111", dept);
-        SubjectEntity subject = SubjectStubs.generateSubject(prof);
-        CourseSubjectEntity csEntity = CourseStubs.generateEntity(student, subject);
+        DeptEntity dept = DeptStubs.generateStub();
+        UserEntity prof = UserStubs.generateStub(UserRole.PROFESSOR, "000-0000-0000", dept);
+        UserEntity student = UserStubs.generateStub(UserRole.STUDENT, "111-1111-1111", dept);
+        SubjectEntity subject = SubjectStubs.generateStub(prof);
+        CourseSubjectEntity csEntity = CourseStubs.generateStub(student, subject);
         List<CourseSubjectEntity> courseList = new ArrayList<>();
         courseList.add(csEntity);
         CourseRequest req = CourseStubs.generateRequest(student.getId(), subject.getId());
@@ -98,13 +98,13 @@ public class CourseServiceTest {
     @DisplayName("과목을 수강하는 학생 조회 성공")
     void getStudentsOfSubject_success() {
         // given
-        DeptEntity dept = DeptStubs.generateEntity();
-        UserEntity student1 = UserStubs.generateEntity(UserRole.STUDENT, "000-000-0000", dept);
-        UserEntity student2 = UserStubs.generateEntity(UserRole.STUDENT, "222-222-2222", dept);
-        UserEntity prof = UserStubs.generateEntity(UserRole.PROFESSOR, "111-111-1111", dept);
-        SubjectEntity subject = SubjectStubs.generateSubject(prof);
-        CourseSubjectEntity entity1 = CourseStubs.generateEntity(student1, subject);
-        CourseSubjectEntity entity2 = CourseStubs.generateEntity(student2, subject);
+        DeptEntity dept = DeptStubs.generateStub();
+        UserEntity student1 = UserStubs.generateStub(UserRole.STUDENT, "000-000-0000", dept);
+        UserEntity student2 = UserStubs.generateStub(UserRole.STUDENT, "222-222-2222", dept);
+        UserEntity prof = UserStubs.generateStub(UserRole.PROFESSOR, "111-111-1111", dept);
+        SubjectEntity subject = SubjectStubs.generateStub(prof);
+        CourseSubjectEntity entity1 = CourseStubs.generateStub(student1, subject);
+        CourseSubjectEntity entity2 = CourseStubs.generateStub(student2, subject);
 
         List<CourseSubjectEntity> courseList = new ArrayList<>();
         courseList.add(entity1);

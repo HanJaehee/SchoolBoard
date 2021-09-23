@@ -1,6 +1,8 @@
 package com.hindsight.sb.stub;
 
 import com.hindsight.sb.dto.subject.SubjectRequest;
+import com.hindsight.sb.dto.subject.SubjectResponse;
+import com.hindsight.sb.dto.user.UserBriefResponse;
 import com.hindsight.sb.entity.SubjectEntity;
 import com.hindsight.sb.entity.UserEntity;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -8,21 +10,33 @@ import org.springframework.test.util.ReflectionTestUtils;
 public class SubjectStubs {
 
     private static long subjectId = 1L;
+    private static String subjectName = "정보보호의 기초";
 
-    public static SubjectEntity generateSubject(UserEntity prof) {
-
-        SubjectEntity subjectEntity = SubjectEntity.builder()
-                .name("정보보호의 기초")
+    public static SubjectEntity generateEntity(UserEntity prof) {
+        return SubjectEntity.builder()
+                .name(subjectName)
                 .prof(prof)
                 .build();
+    }
+
+    public static SubjectEntity generateStub(UserEntity prof) {
+        SubjectEntity subjectEntity = generateEntity(prof);
         ReflectionTestUtils.setField(subjectEntity, "id", subjectId++);
         return subjectEntity;
     }
 
-    public static SubjectRequest generateSubjectRequest(Long profId) {
+    public static SubjectRequest generateRequest(Long profId) {
         return SubjectRequest.builder()
                 .profId(profId)
-                .name("정보보호의 기초")
+                .name(subjectName)
+                .build();
+    }
+
+    public static SubjectResponse generateResponse(UserBriefResponse prof, Long id) {
+        return SubjectResponse.builder()
+                .id(id)
+                .name(subjectName)
+                .prof(prof)
                 .build();
     }
 }

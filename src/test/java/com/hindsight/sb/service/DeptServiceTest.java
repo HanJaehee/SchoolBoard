@@ -6,12 +6,12 @@ import com.hindsight.sb.entity.DeptEntity;
 import com.hindsight.sb.exception.dept.DeptErrorResult;
 import com.hindsight.sb.exception.dept.DeptException;
 import com.hindsight.sb.repository.DeptRepository;
+import com.hindsight.sb.stub.DeptStubs;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.Optional;
 
@@ -28,21 +28,11 @@ public class DeptServiceTest {
     @Mock
     private DeptRepository deptRepository;
 
-    private DeptEntity deptEntity() {
-        DeptEntity deptEntity = DeptEntity.builder()
-                .name(name)
-                .build();
-        ReflectionTestUtils.setField(deptEntity, "id", 1L);
-        return deptEntity;
-    }
-
     @Test
     @DisplayName("전공 생성 실패 - 전공 이름 중복")
     void addDept_fail_duplicateName() {
         // given
-        DeptRequest req = DeptRequest.builder()
-                .name(name)
-                .build();
+        DeptRequest req = DeptStubs.generateRequest();
         doReturn(Optional.of(DeptEntity.builder().build())).when(deptRepository).findByName(name);
 
         // when
@@ -56,11 +46,10 @@ public class DeptServiceTest {
     @DisplayName("전공 생성 및 조회 성공")
     void addDept_success() {
         // given
-        DeptRequest req = DeptRequest.builder()
-                .name(name)
-                .build();
+        DeptRequest req = DeptStubs.generateRequest();
+        DeptEntity deptEntity = DeptStubs.generateStub();
         doReturn(Optional.empty()).when(deptRepository).findByName(name);
-        doReturn(deptEntity()).when(deptRepository).save(any(DeptEntity.class));
+        doReturn(deptEntity).when(deptRepository).save(any(DeptEntity.class));
 
         // when
         DeptResponse deptResponse = deptService.addDept(req);

@@ -12,14 +12,15 @@ import com.hindsight.sb.exception.user.UserErrorResult;
 import com.hindsight.sb.exception.user.UserException;
 import com.hindsight.sb.repository.SubjectRepository;
 import com.hindsight.sb.repository.UserRepository;
+import com.hindsight.sb.stub.DeptStubs;
+import com.hindsight.sb.stub.SubjectStubs;
+import com.hindsight.sb.stub.UserStubs;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -29,7 +30,6 @@ import static org.mockito.Mockito.doReturn;
 @MockitoSettings
 public class SubjectServiceTest {
 
-    private final String subjectName = "정보보호의 기초";
     @InjectMocks
     private SubjectServiceImpl subjectService;
     @Mock
@@ -37,46 +37,11 @@ public class SubjectServiceTest {
     @Mock
     private UserRepository userRepository;
 
-    DeptEntity deptEntity() {
-        DeptEntity dept = DeptEntity.builder()
-                .name("정보보호학과").build();
-        ReflectionTestUtils.setField(dept, "id", 1L);
-        return dept;
-    }
-
-    UserEntity userEntity(DeptEntity dept) {
-        UserEntity user = UserEntity.builder()
-                .address("경기도 의정부시")
-                .deptEntity(dept)
-                .userRole(UserRole.PROFESSOR)
-                .birth(LocalDate.now())
-                .phoneNo("000-0000-0000")
-                .name("김교수")
-                .build();
-        ReflectionTestUtils.setField(user, "id", 1L);
-        return user;
-    }
-
-    SubjectRequest subjectRequest() {
-        return SubjectRequest.builder()
-                .profId(1L)
-                .name(subjectName)
-                .build();
-    }
-
-    SubjectEntity subjectEntity(UserEntity prof) {
-        SubjectEntity entity = SubjectEntity.builder()
-                .prof(prof)
-                .name(subjectName).build();
-        ReflectionTestUtils.setField(entity, "id", 1L);
-        return entity;
-    }
-
     @Test
     @DisplayName("과목 생성 실패 - No Supervisor")
     void addSubject_fail_NoSupervisor() {
         // given
-        SubjectRequest req = subjectRequest();
+        SubjectRequest req = SubjectStubs.generateRequest(1L);
         doReturn(Optional.empty()).when(userRepository).findById(any(Long.class));
 
         // when
@@ -89,7 +54,7 @@ public class SubjectServiceTest {
     @DisplayName("과목 생성 실패 - 과목 이름 중복")
     void addSubject_fail_duplicateName() {
         // given
-        SubjectRequest req = subjectRequest();
+        SubjectRequest req = SubjectStubs.generateRequest(1L);
         doReturn(Optional.of(SubjectEntity.builder().build())).when(subjectRepository).findByName(any(String.class));
 
         // when
@@ -103,12 +68,12 @@ public class SubjectServiceTest {
     @DisplayName("과목 생성 성공")
     void addSubject_success() {
         // given
-        SubjectRequest req = subjectRequest();
-        DeptEntity dept = deptEntity();
-        UserEntity supervisor = userEntity(dept);
-        SubjectEntity entity = subjectEntity(supervisor);
+        DeptEntity dept = DeptStubs.generateStub();
+        UserEntity prof = UserStubs.generateStub(UserRole.PROFESSOR, "000-0000-0000", dept);
+        SubjectEntity entity = SubjectStubs.generateStub(prof);
+        SubjectRequest req = SubjectStubs.generateRequest(prof.getId());
 
-        doReturn(Optional.of(supervisor)).when(userRepository).findById(any(Long.class));
+        doReturn(Optional.of(prof)).when(userRepository).findById(any(Long.class));
         doReturn(entity).when(subjectRepository).save(any(SubjectEntity.class));
 
         // when
