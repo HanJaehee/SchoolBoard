@@ -53,7 +53,7 @@ public class DeptServiceTest {
     }
 
     @Test
-    @DisplayName("전공 생성 성공")
+    @DisplayName("전공 생성 및 조회 성공")
     void addDept_success() {
         // given
         DeptRequest req = DeptRequest.builder()

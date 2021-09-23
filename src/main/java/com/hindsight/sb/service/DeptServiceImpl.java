@@ -11,9 +11,9 @@ import org.springframework.stereotype.Service;
 
 import javax.transaction.Transactional;
 
-@Service
 @RequiredArgsConstructor
 @Transactional
+@Service
 public class DeptServiceImpl implements DeptService {
 
     private final DeptRepository deptRepository;

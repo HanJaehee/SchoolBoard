@@ -3,6 +3,7 @@ package com.hindsight.sb.service;
 import com.hindsight.sb.dto.course.CourseRequest;
 import com.hindsight.sb.dto.course.CourseResponse;
 import com.hindsight.sb.dto.subject.SubjectResponse;
+import com.hindsight.sb.dto.user.UserBriefResponse;
 import com.hindsight.sb.entity.CourseSubjectEntity;
 import com.hindsight.sb.entity.SubjectEntity;
 import com.hindsight.sb.entity.UserEntity;
@@ -17,11 +18,13 @@ import com.hindsight.sb.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class CourseServiceImpl implements CourseService {
 
@@ -49,5 +52,16 @@ public class CourseServiceImpl implements CourseService {
         return CourseResponse.builder()
                 .subjectList(allByStudent.stream().map(x -> SubjectResponse.toDto(x.getSubject())).collect(Collectors.toList()))
                 .build();
+    }
+
+    @Override
+    public List<UserBriefResponse> getStudentsOfSubject(Long subjectId) {
+        Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
+        if (!optionalSubject.isPresent())
+            throw new SubjectException(SubjectErrorResult.NOT_EXISTS_SUBJECT);
+
+        List<CourseSubjectEntity> allBySubject = courseRepository.findAllBySubject(optionalSubject.get());
+
+        return allBySubject.stream().map(x -> UserBriefResponse.toDto(x.getStudent())).collect(Collectors.toList());
     }
 }

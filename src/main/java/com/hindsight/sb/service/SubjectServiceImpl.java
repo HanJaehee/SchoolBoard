@@ -13,9 +13,11 @@ import com.hindsight.sb.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
+import javax.transaction.Transactional;
 import java.util.Optional;
 
 @RequiredArgsConstructor
+@Transactional
 @Service
 public class SubjectServiceImpl implements SubjectService {
 

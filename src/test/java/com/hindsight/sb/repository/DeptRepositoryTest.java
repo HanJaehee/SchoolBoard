@@ -24,7 +24,7 @@ class DeptRepositoryTest {
         DeptEntity savedDept = deptRepository.save(deptEntity);
 
         assertEquals(savedDept, deptEntity);
-
     }
+
 
 }

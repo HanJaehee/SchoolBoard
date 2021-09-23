@@ -1,6 +1,8 @@
 package com.hindsight.sb.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.hindsight.sb.dto.course.CourseRequest;
+import com.hindsight.sb.dto.course.CourseResponse;
 import com.hindsight.sb.dto.subject.SubjectRequest;
 import com.hindsight.sb.dto.subject.SubjectResponse;
 import com.hindsight.sb.dto.user.UserBriefResponse;
@@ -8,6 +10,11 @@ import com.hindsight.sb.entity.DeptEntity;
 import com.hindsight.sb.entity.UserEntity;
 import com.hindsight.sb.entity.UserRole;
 import com.hindsight.sb.exception.GlobalExceptionHandler;
+import com.hindsight.sb.exception.subject.SubjectErrorResult;
+import com.hindsight.sb.exception.subject.SubjectException;
+import com.hindsight.sb.exception.user.UserErrorResult;
+import com.hindsight.sb.exception.user.UserException;
+import com.hindsight.sb.service.CourseService;
 import com.hindsight.sb.service.SubjectService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -23,9 +30,13 @@ import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.LongStream;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.doThrow;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -40,6 +51,8 @@ public class SubjectControllerTest {
     private SubjectController subjectController;
     @Mock
     private SubjectService subjectService;
+    @Mock
+    private CourseService courseService;
     private MockMvc mockMvc;
     private ObjectMapper objectMapper;
 
@@ -125,9 +138,107 @@ public class SubjectControllerTest {
         perform
                 .andExpect(jsonPath("id").value(subjectId))
                 .andExpect(jsonPath("name").value(subjectName))
-                .andExpect(jsonPath("supervisor").exists())
+                .andExpect(jsonPath("prof").exists())
                 .andExpect(jsonPath("links[0].rel").exists())
                 .andExpect(jsonPath("links[0].href").exists())
         ;
+    }
+
+    CourseRequest courseRequest() {
+        return CourseRequest.builder()
+                .studentId(1L)
+                .subjectId(1L)
+                .build();
+    }
+
+    @Test
+    @DisplayName("수강 신청 성공")
+    void enrollCourse_success() throws Exception {
+        // given
+        final String uri = "/subject/course";
+        CourseRequest req = CourseRequest.builder()
+                .subjectId(1L)
+                .studentId(1L)
+                .build();
+        List<SubjectResponse> subjectList = new ArrayList<>();
+        UserBriefResponse prof = UserBriefResponse.builder().build();
+        LongStream.range(1L, 10L).forEach(x -> subjectList.add(SubjectResponse.builder()
+                .id(x)
+                .name("정보보호의 기초")
+                .prof(prof)
+                .build()));
+        CourseResponse res = CourseResponse.builder()
+                .subjectList(subjectList)
+                .build();
+        doReturn(res).when(courseService).enrollCourse(any(CourseRequest.class));
+        // when
+        ResultActions perform = mockMvc.perform(
+                post(uri)
+                        .content(objectMapper.writeValueAsString(req))
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andDo(print());
+        // then
+        perform
+                .andExpect(jsonPath("subjectList").exists())
+                .andExpect(jsonPath("links[0].rel").exists())
+                .andExpect(jsonPath("links[0].href").exists())
+        ;
+    }
+
+
+    @Test
+    @DisplayName("수강 신청 실패 - Invalid Request")
+    void enrollCourse_fail_invalidRequest() throws Exception {
+        // given
+        final String uri = "/subject/course";
+        CourseRequest req = CourseRequest.builder()
+                .build();
+        // when
+        ResultActions perform = mockMvc.perform(
+                post(uri)
+                        .content(objectMapper.writeValueAsString(req))
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andDo(print());
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+        ;
+    }
+
+    @Test
+    @DisplayName("수강 신청 실패 - Not Exist Student")
+    void enrollCourse_fail_NotExistStudent() throws Exception {
+        // given
+        final String uri = "/subject/course";
+        CourseRequest req = courseRequest();
+        doThrow(new UserException(UserErrorResult.NOT_EXISTS_USER)).when(courseService).enrollCourse(any(CourseRequest.class));
+        // when
+        ResultActions perform = mockMvc.perform(
+                post(uri)
+                        .content(objectMapper.writeValueAsString(req))
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andDo(print());
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value(UserErrorResult.NOT_EXISTS_USER.getMessage()));
+    }
+
+    @Test
+    @DisplayName("수강 신청 실패 - Not Exist Subject")
+    void enrollCourse_fail_NotExistSubject() throws Exception {
+        final String uri = "/subject/course";
+        CourseRequest req = courseRequest();
+        doThrow(new SubjectException(SubjectErrorResult.NOT_EXISTS_SUBJECT)).when(courseService).enrollCourse(any(CourseRequest.class));
+        // when
+        ResultActions perform = mockMvc.perform(
+                post(uri)
+                        .content(objectMapper.writeValueAsString(req))
+                        .contentType(MediaType.APPLICATION_JSON)
+        ).andDo(print());
+        // then
+        perform
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("message").value(SubjectErrorResult.NOT_EXISTS_SUBJECT.getMessage()));
     }
 }

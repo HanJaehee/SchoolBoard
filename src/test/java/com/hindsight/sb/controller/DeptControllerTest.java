@@ -75,7 +75,7 @@ public class DeptControllerTest {
     }
 
     @Test
-    @DisplayName("등록 실패 - 전공 이름이 Null")
+    @DisplayName("전공 등록 실패 - 전공 이름이 Null")
     void addDept_fail_nameIsNull() throws Exception {
         // given
         final String url = "/dept";
@@ -91,7 +91,7 @@ public class DeptControllerTest {
     }
 
     @Test
-    @DisplayName("등록 성공")
+    @DisplayName("전공 등록 성공")
     void addDept_success() throws Exception {
         // given
         final String url = "/dept";
@@ -109,6 +109,16 @@ public class DeptControllerTest {
                 .andExpect(jsonPath("name").value(name))
                 .andExpect(jsonPath("id").exists())
         ;
+    }
+
+    @Test
+    @DisplayName("")
+    void testName() {
+        // given
+
+        // when
+
+        // then
     }
 
 }

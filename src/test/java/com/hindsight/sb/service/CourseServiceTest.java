@@ -2,6 +2,7 @@ package com.hindsight.sb.service;
 
 import com.hindsight.sb.dto.course.CourseRequest;
 import com.hindsight.sb.dto.course.CourseResponse;
+import com.hindsight.sb.dto.user.UserBriefResponse;
 import com.hindsight.sb.entity.*;
 import com.hindsight.sb.exception.subject.SubjectErrorResult;
 import com.hindsight.sb.exception.subject.SubjectException;
@@ -10,14 +11,16 @@ import com.hindsight.sb.exception.user.UserException;
 import com.hindsight.sb.repository.CourseRepository;
 import com.hindsight.sb.repository.SubjectRepository;
 import com.hindsight.sb.repository.UserRepository;
+import com.hindsight.sb.stub.CourseStubs;
+import com.hindsight.sb.stub.DeptStubs;
+import com.hindsight.sb.stub.SubjectStubs;
+import com.hindsight.sb.stub.UserStubs;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
-import org.springframework.test.util.ReflectionTestUtils;
 
-import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
@@ -39,53 +42,19 @@ public class CourseServiceTest {
     @Mock
     private SubjectRepository subjectRepository;
 
-    CourseRequest courseRequest() {
-        return CourseRequest.builder()
-                .studentId(1L)
-                .subjectId(1L)
-                .build();
-    }
-
-
-    UserEntity userEntity(DeptEntity dept, UserRole role, String name, String phoneNo) {
-        UserEntity entity = UserEntity.builder()
-                .name(name)
-                .userRole(role)
-                .phoneNo(phoneNo)
-                .deptEntity(dept)
-                .birth(LocalDate.now())
-                .address("경기도 의정부")
-                .deptEntity(dept)
-                .build();
-        ReflectionTestUtils.setField(entity, "id", 1L);
-        return entity;
-    }
-
-    SubjectEntity subjectEntity(UserEntity prof) {
-        SubjectEntity entity = SubjectEntity.builder()
-                .name("정보보호의 기초")
-                .prof(prof)
-                .build();
-        ReflectionTestUtils.setField(entity, "id", 1L);
-        return entity;
-    }
-
 
     @Test
     @DisplayName("수강 신청 성공")
     void enrollCourse_success() {
         // given
-        DeptEntity dept = DeptEntity.builder().name("정보호호학과").build();
-        UserEntity prof = userEntity(dept, UserRole.PROFESSOR, "한교수", "000-0000-0000");
-        UserEntity student = userEntity(dept, UserRole.STUDENT, "김학생", "111-1111-1111");
-        SubjectEntity subject = subjectEntity(prof);
-        CourseSubjectEntity csEntity = CourseSubjectEntity.of(subject, student);
+        DeptEntity dept = DeptStubs.generateEntity();
+        UserEntity prof = UserStubs.generateEntity(UserRole.PROFESSOR, "000-0000-0000", dept);
+        UserEntity student = UserStubs.generateEntity(UserRole.STUDENT, "111-1111-1111", dept);
+        SubjectEntity subject = SubjectStubs.generateSubject(prof);
+        CourseSubjectEntity csEntity = CourseStubs.generateEntity(student, subject);
         List<CourseSubjectEntity> courseList = new ArrayList<>();
         courseList.add(csEntity);
-        CourseRequest req = CourseRequest.builder()
-                .subjectId(subject.getId())
-                .studentId(student.getId())
-                .build();
+        CourseRequest req = CourseStubs.generateRequest(student.getId(), subject.getId());
 
         doReturn(Optional.of(student)).when(userRepository).findById(any(Long.class));
         doReturn(Optional.of(subject)).when(subjectRepository).findById(any(Long.class));
@@ -105,7 +74,7 @@ public class CourseServiceTest {
         doReturn(Optional.empty()).when(userRepository).findById(any(Long.class));
 
         // when
-        UserException userException = assertThrows(UserException.class, () -> courseService.enrollCourse(courseRequest()));
+        UserException userException = assertThrows(UserException.class, () -> courseService.enrollCourse(CourseStubs.generateRequest(1L, 1L)));
 
         // then
         assertEquals(UserErrorResult.NOT_EXISTS_USER, userException.getErrorResult());
@@ -119,10 +88,34 @@ public class CourseServiceTest {
         doReturn(Optional.empty()).when(subjectRepository).findById(any(Long.class));
 
         // when
-        SubjectException subjectException = assertThrows(SubjectException.class, () -> courseService.enrollCourse(courseRequest()));
+        SubjectException subjectException = assertThrows(SubjectException.class, () -> courseService.enrollCourse(CourseStubs.generateRequest(1L, 1L)));
 
         // then
         assertEquals(SubjectErrorResult.NOT_EXISTS_SUBJECT, subjectException.getErrorResult());
+    }
+
+    @Test
+    @DisplayName("과목을 수강하는 학생 조회 성공")
+    void getStudentsOfSubject_success() {
+        // given
+        DeptEntity dept = DeptStubs.generateEntity();
+        UserEntity student1 = UserStubs.generateEntity(UserRole.STUDENT, "000-000-0000", dept);
+        UserEntity student2 = UserStubs.generateEntity(UserRole.STUDENT, "222-222-2222", dept);
+        UserEntity prof = UserStubs.generateEntity(UserRole.PROFESSOR, "111-111-1111", dept);
+        SubjectEntity subject = SubjectStubs.generateSubject(prof);
+        CourseSubjectEntity entity1 = CourseStubs.generateEntity(student1, subject);
+        CourseSubjectEntity entity2 = CourseStubs.generateEntity(student2, subject);
+
+        List<CourseSubjectEntity> courseList = new ArrayList<>();
+        courseList.add(entity1);
+        courseList.add(entity2);
+        doReturn(courseList).when(courseRepository).findAllBySubject(any(SubjectEntity.class));
+        doReturn(Optional.of(subject)).when(subjectRepository).findById(any(Long.class));
+        // when
+
+        List<UserBriefResponse> studentsOfSubject = courseService.getStudentsOfSubject(subject.getId());
+        // then
+        assertEquals(studentsOfSubject.size(), courseList.size());
     }
 
 }
