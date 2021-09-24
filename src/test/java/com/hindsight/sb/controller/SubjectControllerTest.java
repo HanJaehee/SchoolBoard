@@ -35,6 +35,7 @@ import java.util.stream.LongStream;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -189,4 +190,25 @@ public class SubjectControllerTest {
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("message").value(SubjectErrorResult.NOT_EXISTS_SUBJECT.getMessage()));
     }
+
+    @Test
+    @DisplayName("과목을 수강하는 학생리스트 조회 성공")
+    void getStudentListOfSubject_success() throws Exception {
+        // given
+        final String uri = "/subject/users/1";
+        List<UserBriefResponse> studentList = new ArrayList<>();
+        LongStream.range(1, 10).forEach(x -> studentList.add(UserStubs.generateBriefResponse("한학생", x)));
+        doReturn(studentList).when(courseService).getStudentsOfSubject(any(Long.class));
+        // when
+        ResultActions perform = mockMvc.perform(
+                get(uri).contentType(MediaType.APPLICATION_JSON).accept(MediaType.APPLICATION_JSON)
+        ).andDo(print());
+        // then
+        perform
+                .andExpect(jsonPath("content").isArray())
+                .andExpect(jsonPath("links[0].rel").exists())
+        ;
+    }
+
+
 }

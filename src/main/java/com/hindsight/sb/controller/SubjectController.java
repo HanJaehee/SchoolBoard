@@ -4,9 +4,11 @@ import com.hindsight.sb.dto.course.CourseRequest;
 import com.hindsight.sb.dto.course.CourseResponse;
 import com.hindsight.sb.dto.subject.SubjectRequest;
 import com.hindsight.sb.dto.subject.SubjectResponse;
+import com.hindsight.sb.dto.user.UserBriefResponse;
 import com.hindsight.sb.service.CourseService;
 import com.hindsight.sb.service.SubjectService;
 import lombok.RequiredArgsConstructor;
+import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
 import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
@@ -14,6 +16,8 @@ import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
+import java.util.List;
+import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
@@ -59,6 +63,16 @@ public class SubjectController {
     @GetMapping("/{subjectId}")
     public ResponseEntity<EntityModel<SubjectResponse>> getSubject(@PathVariable Long subjectId) {
         return null;
+    }
+
+    @GetMapping("/users/{subjectId}")
+    public ResponseEntity<CollectionModel<EntityModel<UserBriefResponse>>> getStudentsOfSubject(@PathVariable Long subjectId) {
+        List<UserBriefResponse> studentsOfSubject = courseService.getStudentsOfSubject(subjectId);
+        List<EntityModel<UserBriefResponse>> modelList = studentsOfSubject.stream().map(x -> EntityModel.of(x)
+                .add(linkTo(methodOn(UserController.class).getUser(x.getId())).withSelfRel())).collect(Collectors.toList());
+        CollectionModel<EntityModel<UserBriefResponse>> responseModel = CollectionModel.of(modelList);
+        responseModel.add(linkTo(methodOn(this.getClass()).getStudentsOfSubject(subjectId)).withSelfRel());
+        return ResponseEntity.ok(responseModel);
     }
 
     @GetMapping("/{studentId}")

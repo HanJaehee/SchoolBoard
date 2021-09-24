@@ -63,5 +63,9 @@ public class CourseServiceImpl implements CourseService {
         List<CourseSubjectEntity> allBySubject = courseRepository.findAllBySubject(optionalSubject.get());
 
         return allBySubject.stream().map(x -> UserBriefResponse.toDto(x.getStudent())).collect(Collectors.toList());
+//        return SubjectAndStudentListResponse.builder()
+//                .studentList(allBySubject.stream().map(x -> UserBriefResponse.toDto(x.getStudent())).collect(Collectors.toList()))
+//                .subjectResponse(SubjectResponse.toDto(optionalSubject.get()))
+//                .build();
     }
 }
