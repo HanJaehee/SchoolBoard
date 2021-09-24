@@ -12,5 +12,5 @@ public interface DeptRepository extends JpaRepository<DeptEntity, Long> {
 
     Optional<DeptEntity> findByName(String name);
 
-    List<DeptEntity> findAllByName(String name);
+    List<DeptEntity> findAllByNameContains(String name);
 }

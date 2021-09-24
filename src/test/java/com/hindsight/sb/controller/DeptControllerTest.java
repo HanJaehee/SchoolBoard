@@ -137,13 +137,13 @@ public class DeptControllerTest {
     @DisplayName("이름으로 전공 조회 성공")
     void getAllDeptByName_success() throws Exception {
         // given
-        final String uri = "/dept/search?name=정보보호학";
+        final String uri = "/dept/search";
         List<DeptResponse> deptResponseList = new ArrayList<>();
         LongStream.range(1, 10).forEach(x -> deptResponseList.add(DeptStubs.generateResponse(x)));
         doReturn(deptResponseList).when(deptService).getAllDeptByName(any(String.class));
         // when
         ResultActions perform = mockMvc.perform(
-                get(uri)
+                get(uri).param("keyword", "정보보호학")
                         .accept(MediaType.APPLICATION_JSON)
         ).andDo(print());
         // then

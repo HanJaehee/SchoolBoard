@@ -11,5 +11,5 @@ public interface DeptService {
 
     DeptResponse getDeptById(Long deptId);
 
-    List<DeptResponse> getAllDeptByName(String name);
+    List<DeptResponse> getAllDeptByName(String keyword);
 }

@@ -37,6 +37,7 @@ public class DeptServiceImpl implements DeptService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public DeptResponse getDeptById(Long deptId) {
         Optional<DeptEntity> optionalDept = deptRepository.findById(deptId);
         if (!optionalDept.isPresent())
@@ -45,8 +46,9 @@ public class DeptServiceImpl implements DeptService {
     }
 
     @Override
-    public List<DeptResponse> getAllDeptByName(String name) {
-        return deptRepository.findAllByName(name).stream()
+    @Transactional(readOnly = true)
+    public List<DeptResponse> getAllDeptByName(String keyword) {
+        return deptRepository.findAllByNameContains(keyword).stream()
                 .map(DeptResponse::toDto)
                 .collect(Collectors.toList());
     }

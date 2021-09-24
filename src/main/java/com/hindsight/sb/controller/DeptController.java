@@ -43,13 +43,13 @@ public class DeptController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<CollectionModel<EntityModel<DeptResponse>>> getAllDeptByName(@RequestParam String name) {
-        List<DeptResponse> allDeptByName = deptService.getAllDeptByName(name);
+    public ResponseEntity<CollectionModel<EntityModel<DeptResponse>>> getAllDeptByName(@RequestParam String keyword) {
+        List<DeptResponse> allDeptByName = deptService.getAllDeptByName(keyword);
         CollectionModel<EntityModel<DeptResponse>> model = CollectionModel.of(
                 allDeptByName.stream()
                         .map(x -> EntityModel.of(x).add(linkTo(methodOn(this.getClass()).getDept(x.getId())).withSelfRel()))
                         .collect(Collectors.toList()));
-        model.add(linkTo(methodOn(this.getClass()).getAllDeptByName(name)).withSelfRel());
+        model.add(linkTo(methodOn(this.getClass()).getAllDeptByName(keyword)).withSelfRel());
         return ResponseEntity.ok(model);
     }
 }

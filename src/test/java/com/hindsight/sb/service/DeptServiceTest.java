@@ -87,12 +87,12 @@ public class DeptServiceTest {
     }
 
     @Test
-    @DisplayName("이름으로 전공 조회 성공")
+    @DisplayName("키워드 포함된 전공 조회 성공")
     void getAllDeptByName_success() {
         // given
         List<DeptEntity> deptEntityList = new ArrayList<>();
         IntStream.range(1, 10).forEach(x -> deptEntityList.add(DeptStubs.generateStub()));
-        doReturn(deptEntityList).when(deptRepository).findAllByName(any(String.class));
+        doReturn(deptEntityList).when(deptRepository).findAllByNameContains(any(String.class));
         // when
         List<DeptResponse> deptResponseList = deptService.getAllDeptByName("정보보호학과");
         // then
