@@ -20,9 +20,14 @@ import org.springframework.test.web.servlet.ResultActions;
 import org.springframework.test.web.servlet.setup.MockMvcBuilders;
 import org.springframework.web.filter.CharacterEncodingFilter;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.stream.LongStream;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
@@ -103,6 +108,51 @@ public class DeptControllerTest {
                 .andExpect(status().isCreated())
                 .andExpect(jsonPath("name").value(name))
                 .andExpect(jsonPath("id").exists())
+        ;
+    }
+
+    @Test
+    @DisplayName("아이디로 전공 조회 성공")
+    void getDeptById_success() throws Exception {
+        // given
+        final String uri = "/dept/1";
+        DeptResponse response = DeptStubs.generateResponse(1L);
+        doReturn(response).when(deptService).getDeptById(any(Long.class));
+        // when
+        ResultActions perform = mockMvc
+                .perform(
+                        get(uri)
+                                .accept(MediaType.APPLICATION_JSON)
+                ).andDo(print());
+        // then
+        perform
+                .andExpect(jsonPath("id").value(1L))
+                .andExpect(jsonPath("name").value(response.getName()))
+                .andExpect(jsonPath("links[0].rel").value("self"))
+                .andExpect(jsonPath("links[0].href").exists())
+        ;
+    }
+
+    @Test
+    @DisplayName("이름으로 전공 조회 성공")
+    void getAllDeptByName_success() throws Exception {
+        // given
+        final String uri = "/dept/search?name=정보보호학";
+        List<DeptResponse> deptResponseList = new ArrayList<>();
+        LongStream.range(1, 10).forEach(x -> deptResponseList.add(DeptStubs.generateResponse(x)));
+        doReturn(deptResponseList).when(deptService).getAllDeptByName(any(String.class));
+        // when
+        ResultActions perform = mockMvc.perform(
+                get(uri)
+                        .accept(MediaType.APPLICATION_JSON)
+        ).andDo(print());
+        // then
+        perform
+                .andExpect(jsonPath("content").exists())
+                .andExpect(jsonPath("content[0].links[0].rel").value("self"))
+                .andExpect(jsonPath("content[0].links[0].href").exists())
+                .andExpect(jsonPath("links[0].rel").value("self"))
+                .andExpect(jsonPath("links[0].href").exists())
         ;
     }
 

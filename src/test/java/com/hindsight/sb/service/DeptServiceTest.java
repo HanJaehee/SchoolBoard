@@ -13,7 +13,10 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.IntStream;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.any;
@@ -57,5 +60,42 @@ public class DeptServiceTest {
         // then
         assertNotNull(deptResponse.getId());
         assertEquals(name, deptResponse.getName());
+    }
+
+    @Test
+    @DisplayName("아이디로 전공 조회 실패 - Invalid deptId")
+    void getDeptById_fail_InvalidDeptId() {
+        // given
+        doReturn(Optional.empty()).when(deptRepository).findById(any(Long.class));
+        // when
+        DeptException exception = assertThrows(DeptException.class, () -> deptService.getDeptById(1L));
+        // then
+        assertEquals(exception.getErrorResult(), DeptErrorResult.NO_SUCH_DEPT_ID);
+    }
+
+    @Test
+    @DisplayName("아이디로 전공 조회 성공")
+    void getDeptById() {
+        // given
+        DeptEntity dept = DeptStubs.generateStub();
+        doReturn(Optional.of(dept)).when(deptRepository).findById(any(Long.class));
+        // when
+        DeptResponse deptById = deptService.getDeptById(dept.getId());
+        // then
+        assertEquals(deptById.getId(), dept.getId());
+        assertEquals(deptById.getName(), dept.getName());
+    }
+
+    @Test
+    @DisplayName("이름으로 전공 조회 성공")
+    void getAllDeptByName_success() {
+        // given
+        List<DeptEntity> deptEntityList = new ArrayList<>();
+        IntStream.range(1, 10).forEach(x -> deptEntityList.add(DeptStubs.generateStub()));
+        doReturn(deptEntityList).when(deptRepository).findAllByName(any(String.class));
+        // when
+        List<DeptResponse> deptResponseList = deptService.getAllDeptByName("정보보호학과");
+        // then
+        assertEquals(deptResponseList.size(), deptEntityList.size());
     }
 }

@@ -17,8 +17,8 @@ import com.hindsight.sb.repository.SubjectRepository;
 import com.hindsight.sb.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -55,6 +55,7 @@ public class CourseServiceImpl implements CourseService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<UserBriefResponse> getStudentsOfSubject(Long subjectId) {
         Optional<SubjectEntity> optionalSubject = subjectRepository.findById(subjectId);
         if (!optionalSubject.isPresent())
