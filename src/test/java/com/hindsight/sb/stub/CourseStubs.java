@@ -2,7 +2,7 @@ package com.hindsight.sb.stub;
 
 import com.hindsight.sb.dto.course.CourseRequest;
 import com.hindsight.sb.dto.course.CourseResponse;
-import com.hindsight.sb.dto.subject.SubjectResponse;
+import com.hindsight.sb.dto.subject.SubjectDetailResponse;
 import com.hindsight.sb.entity.CourseSubjectEntity;
 import com.hindsight.sb.entity.SubjectEntity;
 import com.hindsight.sb.entity.UserEntity;
@@ -34,7 +34,7 @@ public class CourseStubs {
                 .build();
     }
 
-    public static CourseResponse generateResponse(List<SubjectResponse> subjectList) {
+    public static CourseResponse generateResponse(List<SubjectDetailResponse> subjectList) {
         return CourseResponse.builder()
                 .subjectList(subjectList)
                 .build();

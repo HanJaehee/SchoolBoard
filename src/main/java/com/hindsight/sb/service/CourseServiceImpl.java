@@ -2,7 +2,7 @@ package com.hindsight.sb.service;
 
 import com.hindsight.sb.dto.course.CourseRequest;
 import com.hindsight.sb.dto.course.CourseResponse;
-import com.hindsight.sb.dto.subject.SubjectResponse;
+import com.hindsight.sb.dto.subject.SubjectDetailResponse;
 import com.hindsight.sb.dto.user.UserBriefResponse;
 import com.hindsight.sb.entity.CourseSubjectEntity;
 import com.hindsight.sb.entity.SubjectEntity;
@@ -50,7 +50,7 @@ public class CourseServiceImpl implements CourseService {
         List<CourseSubjectEntity> allByStudent = courseRepository.findAllByStudent(optionalStudent.get());
 
         return CourseResponse.builder()
-                .subjectList(allByStudent.stream().map(x -> SubjectResponse.toDto(x.getSubject())).collect(Collectors.toList()))
+                .subjectList(allByStudent.stream().map(x -> SubjectDetailResponse.toDto(x.getSubject())).collect(Collectors.toList()))
                 .build();
     }
 

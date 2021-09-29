@@ -1,6 +1,7 @@
 package com.hindsight.sb.stub;
 
 import com.hindsight.sb.dto.dept.DeptResponse;
+import com.hindsight.sb.dto.subject.SubjectBriefResponse;
 import com.hindsight.sb.dto.user.UserBriefResponse;
 import com.hindsight.sb.dto.user.UserDetailResponse;
 import com.hindsight.sb.dto.user.UserRequest;
@@ -10,6 +11,7 @@ import com.hindsight.sb.entity.UserRole;
 import org.springframework.test.util.ReflectionTestUtils;
 
 import java.time.LocalDate;
+import java.util.List;
 
 public class UserStubs {
 
@@ -51,7 +53,7 @@ public class UserStubs {
                 .build();
     }
 
-    public static UserDetailResponse generateDetailResponse(Long id, String phoneNo, UserRole userRole, DeptResponse dept) {
+    public static UserDetailResponse generateDetailResponse(Long id, String phoneNo, UserRole userRole, DeptResponse dept, List<SubjectBriefResponse> subjectList) {
         return UserDetailResponse.builder()
                 .id(id)
                 .name("한유저")
@@ -60,6 +62,7 @@ public class UserStubs {
                 .userRole(userRole)
                 .dept(dept)
                 .address("경기도 의정부시")
+                .subjects(subjectList)
                 .build();
     }
 }

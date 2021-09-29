@@ -9,6 +9,7 @@ import com.hindsight.sb.exception.dept.DeptErrorResult;
 import com.hindsight.sb.exception.dept.DeptException;
 import com.hindsight.sb.exception.user.UserErrorResult;
 import com.hindsight.sb.exception.user.UserException;
+import com.hindsight.sb.repository.CourseRepository;
 import com.hindsight.sb.repository.DeptRepository;
 import com.hindsight.sb.repository.UserRepository;
 import com.hindsight.sb.stub.DeptStubs;
@@ -21,6 +22,7 @@ import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
 import org.mockito.junit.jupiter.MockitoSettings;
 
+import java.util.Collections;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -36,11 +38,13 @@ public class UserServiceTest {
     private UserRepository userRepository;
     @Mock
     private DeptRepository deptRepository;
+    @Mock
+    private CourseRepository courseRepository;
 
     @BeforeEach
     void setUp() {
         MockitoAnnotations.openMocks(this);
-        userService = new UserServiceImpl(userRepository, deptRepository);
+        userService = new UserServiceImpl(userRepository, deptRepository, courseRepository);
     }
 
     @Test
@@ -91,5 +95,33 @@ public class UserServiceTest {
         assertEquals(req.getPhoneNo(), res.getPhoneNo());
         assertEquals(req.getBirth(), res.getBirth());
         assertEquals(req.getName(), res.getName());
+    }
+
+    @Test
+    @DisplayName("유저 가져오기 실패 - 유저 없음")
+    void getUser_fail_notExistUser() {
+        // given
+        doReturn(Optional.empty()).when(userRepository).findById(any(Long.class));
+        // when
+        UserException userException = assertThrows(UserException.class, () -> userService.getUser(1L));
+        // then
+
+        assertEquals(userException.getErrorResult(), UserErrorResult.NOT_EXISTS_USER);
+    }
+
+    @Test
+    @DisplayName("유저 가져오기 성공")
+    void getUser_success() {
+        // given
+        DeptEntity deptEntity = DeptStubs.generateEntity();
+        UserEntity userEntity = UserStubs.generateEntity(UserRole.STUDENT, "000-0000-0000", deptEntity);
+        doReturn(Optional.of(userEntity)).when(userRepository).findById(any(Long.class));
+        doReturn(Collections.EMPTY_LIST).when(courseRepository).findAllByStudent(any(UserEntity.class));
+        // when
+
+        UserDetailResponse response = userService.getUser(1L);
+        // then
+        assertEquals(response.getId(), userEntity.getId());
+        assertEquals(response.getSubjects(), Collections.EMPTY_LIST);
     }
 }

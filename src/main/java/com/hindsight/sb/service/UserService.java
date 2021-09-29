@@ -7,4 +7,6 @@ public interface UserService {
 
     UserDetailResponse addUser(UserRequest req);
 
+    UserDetailResponse getUser(Long userId);
+
 }

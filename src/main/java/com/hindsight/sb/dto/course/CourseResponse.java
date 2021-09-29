@@ -1,6 +1,6 @@
 package com.hindsight.sb.dto.course;
 
-import com.hindsight.sb.dto.subject.SubjectResponse;
+import com.hindsight.sb.dto.subject.SubjectDetailResponse;
 import com.hindsight.sb.entity.SubjectEntity;
 import lombok.*;
 
@@ -13,11 +13,11 @@ import java.util.stream.Collectors;
 @Setter
 @Builder
 public class CourseResponse {
-    private List<SubjectResponse> subjectList;
+    private List<SubjectDetailResponse> subjectList;
 
     public CourseResponse toDto(List<SubjectEntity> subjectList) {
         return CourseResponse.builder()
-                .subjectList(subjectList.stream().map(SubjectResponse::toDto).collect(Collectors.toList()))
+                .subjectList(subjectList.stream().map(SubjectDetailResponse::toDto).collect(Collectors.toList()))
                 .build()
                 ;
     }

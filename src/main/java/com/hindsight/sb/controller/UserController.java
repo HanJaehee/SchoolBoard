@@ -45,8 +45,11 @@ public class UserController {
         return ResponseEntity.created(selfLink.toUri()).body(model);
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<EntityModel<UserDetailResponse>> getUser(@PathVariable Long id) {
-        return null;
+    @GetMapping("/{userId}")
+    public ResponseEntity<EntityModel<UserDetailResponse>> getUser(@PathVariable Long userId) {
+        return ResponseEntity.ok(
+                EntityModel.of(userService.getUser(userId))
+                        .add(linkTo(methodOn(this.getClass()).getUser(userId)).withSelfRel())
+        );
     }
 }
