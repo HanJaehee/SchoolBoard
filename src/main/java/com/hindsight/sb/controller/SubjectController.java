@@ -2,21 +2,19 @@ package com.hindsight.sb.controller;
 
 import com.hindsight.sb.dto.course.CourseRequest;
 import com.hindsight.sb.dto.course.CourseResponse;
+import com.hindsight.sb.dto.subject.SubjectDetailResponse;
 import com.hindsight.sb.dto.subject.SubjectRequest;
-import com.hindsight.sb.dto.subject.SubjectResponse;
 import com.hindsight.sb.dto.user.UserBriefResponse;
 import com.hindsight.sb.service.CourseService;
 import com.hindsight.sb.service.SubjectService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.CollectionModel;
 import org.springframework.hateoas.EntityModel;
-import org.springframework.hateoas.Link;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.Errors;
 import org.springframework.web.bind.annotation.*;
 
 import javax.validation.Valid;
-import java.util.List;
 import java.util.stream.Collectors;
 
 import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.linkTo;
@@ -31,52 +29,54 @@ public class SubjectController {
     private final CourseService courseService;
 
     @PostMapping
-    public ResponseEntity<EntityModel<SubjectResponse>> addSubject(@RequestBody @Valid SubjectRequest request, Errors errors) {
+    public ResponseEntity<EntityModel<SubjectDetailResponse>> addSubject(@RequestBody @Valid SubjectRequest request, Errors errors) {
         if (errors.hasErrors())
             return ResponseEntity.badRequest().build();
 
-        SubjectResponse res = subjectService.addSubject(request);
-        EntityModel<SubjectResponse> model = EntityModel.of(res);
-        Link selfLink = linkTo(methodOn(SubjectController.class).getSubject(res.getId())).withSelfRel();
-        Link profLink = linkTo(methodOn(UserController.class).getUser(res.getProf().getId())).withRel("prof");
-        model.add(selfLink);
-        model.add(profLink);
+        SubjectDetailResponse res = subjectService.addSubject(request);
 
-        return ResponseEntity.created(selfLink.toUri()).body(model);
+        return ResponseEntity
+                .created(linkTo(methodOn(SubjectController.class).getSubject(res.getId())).withSelfRel().toUri())
+                .body(
+                        EntityModel.of(res)
+                                .add(linkTo(methodOn(SubjectController.class).getSubject(res.getId())).withSelfRel())
+                                .add(linkTo(methodOn(UserController.class).getUser(res.getProf().getId())).withRel("prof"))
+                );
     }
 
     @PostMapping("/course")
     public ResponseEntity<EntityModel<CourseResponse>> enrollCourse(@RequestBody @Valid CourseRequest req, Errors errors) {
         if (errors.hasErrors())
             return ResponseEntity.badRequest().build();
-
-        CourseResponse courseResponse = courseService.enrollCourse(req);
-        EntityModel<CourseResponse> model = EntityModel.of(courseResponse);
-        Link subjectListOfStudent = linkTo(methodOn(this.getClass()).getSubjectsOfStudent(req.getStudentId())).withRel("subjectList");
-        Link studentListOfSubject = linkTo(methodOn(this.getClass()).getSubject(req.getSubjectId())).withSelfRel();
-        model.add(subjectListOfStudent);
-        model.add(studentListOfSubject);
-
-        return ResponseEntity.ok(model);
+        return ResponseEntity.ok(
+                EntityModel.of(courseService.enrollCourse(req))
+                        .add(linkTo(methodOn(this.getClass()).getSubjectsOfStudent(req.getStudentId())).withRel("subjectList"))
+                        .add(linkTo(methodOn(this.getClass()).getSubject(req.getSubjectId())).withSelfRel())
+        );
     }
 
     @GetMapping("/{subjectId}")
-    public ResponseEntity<EntityModel<SubjectResponse>> getSubject(@PathVariable Long subjectId) {
-        return null;
+    public ResponseEntity<EntityModel<SubjectDetailResponse>> getSubject(@PathVariable Long subjectId) {
+        return ResponseEntity.ok(
+                EntityModel.of(subjectService.getSubject(subjectId))
+                        .add(linkTo(methodOn(this.getClass()).getSubject(subjectId)).withSelfRel())
+                        .add(linkTo(methodOn(this.getClass()).getStudentsOfSubject(subjectId)).withRel("studentsOfSubject"))
+        );
     }
 
     @GetMapping("/users/{subjectId}")
     public ResponseEntity<CollectionModel<EntityModel<UserBriefResponse>>> getStudentsOfSubject(@PathVariable Long subjectId) {
-        List<UserBriefResponse> studentsOfSubject = courseService.getStudentsOfSubject(subjectId);
-        List<EntityModel<UserBriefResponse>> modelList = studentsOfSubject.stream().map(x -> EntityModel.of(x)
-                .add(linkTo(methodOn(UserController.class).getUser(x.getId())).withSelfRel())).collect(Collectors.toList());
-        CollectionModel<EntityModel<UserBriefResponse>> responseModel = CollectionModel.of(modelList);
-        responseModel.add(linkTo(methodOn(this.getClass()).getStudentsOfSubject(subjectId)).withSelfRel());
-        return ResponseEntity.ok(responseModel);
+        return ResponseEntity.ok(
+                CollectionModel.of(
+                        courseService.getStudentsOfSubject(subjectId).stream()
+                                .map(x -> EntityModel.of(x).add(linkTo(methodOn(UserController.class).getUser(x.getId())).withSelfRel()))
+                                .collect(Collectors.toList())
+                ).add(linkTo(methodOn(this.getClass()).getStudentsOfSubject(subjectId)).withSelfRel())
+        );
     }
 
-    @GetMapping("/{studentId}")
-    public ResponseEntity<EntityModel<SubjectResponse>> getSubjectsOfStudent(@PathVariable Long studentId) {
+    @GetMapping("/subject/{studentId}")
+    public ResponseEntity<EntityModel<SubjectDetailResponse>> getSubjectsOfStudent(@PathVariable Long studentId) {
         return null;
     }
 }

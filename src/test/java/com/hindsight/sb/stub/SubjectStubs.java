@@ -1,7 +1,7 @@
 package com.hindsight.sb.stub;
 
+import com.hindsight.sb.dto.subject.SubjectDetailResponse;
 import com.hindsight.sb.dto.subject.SubjectRequest;
-import com.hindsight.sb.dto.subject.SubjectResponse;
 import com.hindsight.sb.dto.user.UserBriefResponse;
 import com.hindsight.sb.entity.SubjectEntity;
 import com.hindsight.sb.entity.UserEntity;
@@ -32,8 +32,8 @@ public class SubjectStubs {
                 .build();
     }
 
-    public static SubjectResponse generateResponse(UserBriefResponse prof, Long id) {
-        return SubjectResponse.builder()
+    public static SubjectDetailResponse generateResponse(UserBriefResponse prof, Long id) {
+        return SubjectDetailResponse.builder()
                 .id(id)
                 .name(subjectName)
                 .prof(prof)

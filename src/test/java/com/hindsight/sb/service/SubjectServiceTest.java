@@ -1,7 +1,7 @@
 package com.hindsight.sb.service;
 
+import com.hindsight.sb.dto.subject.SubjectDetailResponse;
 import com.hindsight.sb.dto.subject.SubjectRequest;
-import com.hindsight.sb.dto.subject.SubjectResponse;
 import com.hindsight.sb.entity.DeptEntity;
 import com.hindsight.sb.entity.SubjectEntity;
 import com.hindsight.sb.entity.UserEntity;
@@ -21,6 +21,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoSettings;
 
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 import static org.junit.jupiter.api.Assertions.*;
@@ -77,9 +78,36 @@ public class SubjectServiceTest {
         doReturn(entity).when(subjectRepository).save(any(SubjectEntity.class));
 
         // when
-        SubjectResponse res = subjectService.addSubject(req);
+        SubjectDetailResponse res = subjectService.addSubject(req);
         // then
         assertNotNull(res.getId());
         assertEquals(res.getName(), req.getName());
+    }
+
+    @Test
+    @DisplayName("과목 조회 성공")
+    void getSubject_success() {
+        // given
+        DeptEntity dept = DeptStubs.generateStub();
+        UserEntity prof = UserStubs.generateStub(UserRole.PROFESSOR, "000-0000-0000", dept);
+        SubjectEntity subject = SubjectStubs.generateStub(prof);
+        doReturn(Optional.of(subject)).when(subjectRepository).findById(any(Long.class));
+
+        // when
+        SubjectDetailResponse subjectRes = subjectService.getSubject(prof.getId());
+
+        // then
+        assertEquals(subjectRes.getId(), prof.getId());
+    }
+
+    @Test
+    @DisplayName("과목 조회 실패 - 일치하는 아이디 없음")
+    void getSubject_fail_NoSuchElement() {
+        // given
+        doReturn(Optional.empty()).when(subjectRepository).findById(any(Long.class));
+
+        // when, then
+        assertThrows(NoSuchElementException.class, () -> subjectService.getSubject(1L));
+
     }
 }

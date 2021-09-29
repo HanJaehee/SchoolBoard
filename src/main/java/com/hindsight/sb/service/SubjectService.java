@@ -1,8 +1,10 @@
 package com.hindsight.sb.service;
 
+import com.hindsight.sb.dto.subject.SubjectDetailResponse;
 import com.hindsight.sb.dto.subject.SubjectRequest;
-import com.hindsight.sb.dto.subject.SubjectResponse;
 
 public interface SubjectService {
-    SubjectResponse addSubject(SubjectRequest req);
+    SubjectDetailResponse addSubject(SubjectRequest req);
+
+    SubjectDetailResponse getSubject(Long subjectId);
 }

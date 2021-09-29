@@ -1,7 +1,7 @@
 package com.hindsight.sb.service;
 
+import com.hindsight.sb.dto.subject.SubjectDetailResponse;
 import com.hindsight.sb.dto.subject.SubjectRequest;
-import com.hindsight.sb.dto.subject.SubjectResponse;
 import com.hindsight.sb.entity.SubjectEntity;
 import com.hindsight.sb.entity.UserEntity;
 import com.hindsight.sb.exception.subject.SubjectErrorResult;
@@ -12,12 +12,12 @@ import com.hindsight.sb.repository.SubjectRepository;
 import com.hindsight.sb.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
-import javax.transaction.Transactional;
+import java.util.NoSuchElementException;
 import java.util.Optional;
 
 @RequiredArgsConstructor
-@Transactional
 @Service
 public class SubjectServiceImpl implements SubjectService {
 
@@ -25,7 +25,8 @@ public class SubjectServiceImpl implements SubjectService {
     private final UserRepository userRepository;
 
     @Override
-    public SubjectResponse addSubject(SubjectRequest req) {
+    @Transactional
+    public SubjectDetailResponse addSubject(SubjectRequest req) {
         if (subjectRepository.findByName(req.getName()).isPresent())
             throw new SubjectException(SubjectErrorResult.DUPLICATE_NAME);
 
@@ -34,6 +35,12 @@ public class SubjectServiceImpl implements SubjectService {
             throw new UserException(UserErrorResult.NOT_EXISTS_USER);
 
         SubjectEntity savedEntity = subjectRepository.save(SubjectEntity.of(req, optionalProf.get()));
-        return SubjectResponse.toDto(savedEntity);
+        return SubjectDetailResponse.toDto(savedEntity);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public SubjectDetailResponse getSubject(Long subjectId) {
+        return SubjectDetailResponse.toDto(subjectRepository.findById(subjectId).orElseThrow(NoSuchElementException::new));
     }
 }

@@ -11,10 +11,10 @@ import java.util.List;
 @Setter
 @Builder
 public class SubjectAndStudentListResponse {
-    SubjectResponse subjectResponse;
+    SubjectDetailResponse subjectResponse;
     List<UserBriefResponse> studentList;
 
-    private static SubjectAndStudentListResponse toDto(SubjectResponse subjectResponse, List<UserBriefResponse> studentList) {
+    private static SubjectAndStudentListResponse toDto(SubjectDetailResponse subjectResponse, List<UserBriefResponse> studentList) {
         return SubjectAndStudentListResponse.builder()
                 .subjectResponse(subjectResponse)
                 .studentList(studentList)

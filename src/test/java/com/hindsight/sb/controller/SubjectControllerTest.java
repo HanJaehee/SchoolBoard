@@ -3,8 +3,8 @@ package com.hindsight.sb.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.hindsight.sb.dto.course.CourseRequest;
 import com.hindsight.sb.dto.course.CourseResponse;
+import com.hindsight.sb.dto.subject.SubjectDetailResponse;
 import com.hindsight.sb.dto.subject.SubjectRequest;
-import com.hindsight.sb.dto.subject.SubjectResponse;
 import com.hindsight.sb.dto.user.UserBriefResponse;
 import com.hindsight.sb.exception.GlobalExceptionHandler;
 import com.hindsight.sb.exception.subject.SubjectErrorResult;
@@ -79,7 +79,6 @@ public class SubjectControllerTest {
         // then
         perform
                 .andExpect(status().isBadRequest());
-
     }
 
     @Test
@@ -89,7 +88,7 @@ public class SubjectControllerTest {
         final String uri = "/subject";
         SubjectRequest req = SubjectStubs.generateRequest(1L);
         UserBriefResponse prof = UserStubs.generateBriefResponse("한유저", 1L);
-        SubjectResponse res = SubjectStubs.generateResponse(prof, 1L);
+        SubjectDetailResponse res = SubjectStubs.generateResponse(prof, 1L);
         doReturn(res).when(subjectService).addSubject(any(SubjectRequest.class));
         // when
         ResultActions perform = mockMvc.perform(
@@ -116,7 +115,7 @@ public class SubjectControllerTest {
         CourseRequest req = CourseStubs.generateRequest(1L, 1L);
         UserBriefResponse prof = UserStubs.generateBriefResponse("한유저", 1L);
 
-        List<SubjectResponse> subjectList = new ArrayList<>();
+        List<SubjectDetailResponse> subjectList = new ArrayList<>();
         LongStream.range(1L, 10L).forEach(x -> subjectList.add(SubjectStubs.generateResponse(prof, x)));
         CourseResponse res = CourseStubs.generateResponse(subjectList);
         doReturn(res).when(courseService).enrollCourse(any(CourseRequest.class));
@@ -195,7 +194,7 @@ public class SubjectControllerTest {
     @DisplayName("과목을 수강하는 학생리스트 조회 성공")
     void getStudentListOfSubject_success() throws Exception {
         // given
-        final String uri = "/subject/users/1";
+        final String uri = "/subject/user/1";
         List<UserBriefResponse> studentList = new ArrayList<>();
         LongStream.range(1, 10).forEach(x -> studentList.add(UserStubs.generateBriefResponse("한학생", x)));
         doReturn(studentList).when(courseService).getStudentsOfSubject(any(Long.class));
@@ -208,6 +207,24 @@ public class SubjectControllerTest {
                 .andExpect(jsonPath("content").isArray())
                 .andExpect(jsonPath("links[0].rel").exists())
         ;
+    }
+
+    @Test
+    @DisplayName("과목 세부 정보 조회 성공")
+    void getSubject_success() throws Exception {
+        // given
+        final String uri = "/subject/1";
+        SubjectDetailResponse subjectResponse = SubjectStubs.generateResponse(UserStubs.generateBriefResponse("한교수", 1L), 1L);
+        doReturn(subjectResponse).when(subjectService).getSubject(any(Long.class));
+        // when
+
+        ResultActions perform = mockMvc.perform(
+                get(uri).accept(MediaType.APPLICATION_JSON)
+        ).andDo(print());
+        // then
+
+        perform
+                .andExpect(jsonPath("id").value(1L));
     }
 
 
