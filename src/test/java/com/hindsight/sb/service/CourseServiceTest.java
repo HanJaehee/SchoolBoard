@@ -114,7 +114,6 @@ public class CourseServiceTest {
         // when
 
         List<UserBriefResponse> studentsOfSubject = courseService.getStudentsOfSubject(subject.getId());
-//        SubjectAndStudentListResponse studentsOfSubject = courseService.getStudentsOfSubject(subject.getId());
         // then
         assertEquals(studentsOfSubject.size(), courseList.size());
     }

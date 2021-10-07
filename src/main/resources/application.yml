@@ -1,9 +1,9 @@
 spring:
   datasource:
-    url: jdbc:h2:tcp://localhost/~/schoolboard
-    username: sa
-    password:
-    driver-class-name: org.h2.Driver
+    url: jdbc:mysql://34.64.187.30:3306/schoolboard?useSSL=false&characterEncoding=UTF-8&serverTimezone=UTC&allowPublicKeyRetrieval=true&autoReconnect=true
+    username: herrentest
+    password: h2rr2nt2st
+    driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     hibernate:
       ddl-auto: create

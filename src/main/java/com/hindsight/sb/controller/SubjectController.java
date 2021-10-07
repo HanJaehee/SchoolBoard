@@ -64,6 +64,9 @@ public class SubjectController {
         );
     }
 
+    /*
+    기능 : 과목을 수강하는 학생들 조회
+     */
     @GetMapping("/users/{subjectId}")
     public ResponseEntity<CollectionModel<EntityModel<UserBriefResponse>>> getStudentsOfSubject(@PathVariable Long subjectId) {
         return ResponseEntity.ok(

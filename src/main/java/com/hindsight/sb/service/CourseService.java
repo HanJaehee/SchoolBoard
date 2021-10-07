@@ -8,6 +8,5 @@ import java.util.List;
 
 public interface CourseService {
     CourseResponse enrollCourse(CourseRequest req);
-
     List<UserBriefResponse> getStudentsOfSubject(Long subjectId);
 }

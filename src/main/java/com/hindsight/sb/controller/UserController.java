@@ -2,8 +2,6 @@ package com.hindsight.sb.controller;
 
 import com.hindsight.sb.dto.user.UserDetailResponse;
 import com.hindsight.sb.dto.user.UserRequest;
-import com.hindsight.sb.exception.user.UserErrorResult;
-import com.hindsight.sb.exception.user.UserException;
 import com.hindsight.sb.service.UserService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.hateoas.EntityModel;
@@ -23,11 +21,6 @@ import static org.springframework.hateoas.server.mvc.WebMvcLinkBuilder.methodOn;
 public class UserController {
 
     private final UserService userService;
-
-    @GetMapping("/test")
-    public String hi() {
-        throw new UserException(UserErrorResult.DUPLICATED_PHONE_NUMBER);
-    }
 
     @PostMapping
     public ResponseEntity<EntityModel<UserDetailResponse>> addUser(@RequestBody @Valid UserRequest req, Errors errors) {

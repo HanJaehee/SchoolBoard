@@ -143,7 +143,8 @@ public class DeptControllerTest {
         doReturn(deptResponseList).when(deptService).getAllDeptByName(any(String.class));
         // when
         ResultActions perform = mockMvc.perform(
-                get(uri).param("keyword", "정보보호학")
+                get(uri)
+                        .param("keyword", "정보보호학")
                         .accept(MediaType.APPLICATION_JSON)
         ).andDo(print());
         // then
